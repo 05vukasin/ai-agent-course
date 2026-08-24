@@ -1,0 +1,24 @@
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "base-lyra",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "src/styles/globals.css",
+    "baseColor": "neutral",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "iconLibrary": "lucide",
+  "aliases": {
+    "components": "@ai-agent-course/ui/components",
+    "utils": "@ai-agent-course/ui/lib/utils",
+    "hooks": "@ai-agent-course/ui/hooks",
+    "lib": "@ai-agent-course/ui/lib",
+    "ui": "@ai-agent-course/ui/components"
+  },
+  "menuColor": "default",
+  "menuAccent": "subtle",
+  "registries": {}
+}

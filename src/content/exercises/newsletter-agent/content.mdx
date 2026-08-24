@@ -1,0 +1,325 @@
+import s01 from "./images/01-gmail-connector.png";
+import s02 from "./images/02-research.png";
+import s03 from "./images/03-brend-draft.png";
+import s04 from "./images/04-design-sablon.png";
+import s05 from "./images/05-design-export.png";
+import s06 from "./images/06-gmail-dozvola.png";
+import s07 from "./images/07-gmail-draft.png";
+import s08 from "./images/08-schedule-dijalog.png";
+import s09 from "./images/09-task-stranica.png";
+import s10 from "./images/10-prvi-run.png";
+import s11 from "./images/11-zavrsni-rezultat.png";
+
+## Šta agent radi
+
+Praviš autonomnog agenta koji **svake nedelje sam** istraži relevantne vesti i interne update-ove, napiše nedeljni newsletter u brend-tonu kompanije, ubaci ga u unapred pripremljen vizuelni šablon i ostavi **gotov draft u Gmail-u** koji čovek samo pregleda i pošalje.
+
+Ovo je „capstone" tip vežbe jer spaja najviše alata, a ipak ima čist okidač (raspored) i čistu destinaciju (Gmail draft). Kroz ceo modul radimo sa izmišljenom firmom **„Horizont Digital"** (digitalna marketing agencija, 25 ljudi) — zameni je svojom firmom i svojim brend bojama.
+
+<Blueprint
+  rows={[
+    ["Okidač", "raspored — sreda 8h (weekly)"],
+    ["Izvor", "web (vesti/trendovi) + interni folder sa update-ovima"],
+    ["Obrada", "research → draft u brend-tonu → popuni vizuelni šablon"],
+    ["Destinacija", "Gmail draft (čovek pregleda i šalje)"],
+  ]}
+/>
+
+## Šta ćeš naučiti
+
+- **Scheduled tasks** — kreiranje kroz „Create scheduled task" dijalog, izbor kadence, kako svaki run radi kao zasebna sesija.
+- **Gmail connector** — kreiranje draft-a iz agenta; zašto connector namerno pravi draft a ne šalje.
+- **Claude Design** — pravljenje vizuelnog šablona/masthead-a i export u upotrebljiv format.
+- **Web research** — prikupljanje i filtriranje relevantnih vesti sa naznakom izvora.
+- **Prompt za ponovljiv output** — kako napisati instrukciju koja daje isti format iz nedelje u nedelju.
+- **Orkestracija alata** — kako output jednog alata (šablon iz Design-a) postaje input drugog (scheduled task).
+- **Human-in-the-loop dizajn** — gde staviti čoveka u petlju i zašto outward-facing stvari idu kao draft.
+- **Verifikacija i drift** — kako pratiti prve run-ove jer se izvori i formati menjaju.
+
+<Callout tip="tip">
+**Ključni princip celog modula: prvo prototip ručno, pa automatizuj.** Prvo u običnom chatu odradiš ceo jedan broj rukama — dok ton, format i vizual ne budu tačni. Tek onda tu logiku pakuješ u scheduled task. Niko ne pušta agenta u „produkciju" pre nego što je ručno dokazao da svaki korak radi.
+</Callout>
+
+## Preduslovi
+
+- Plaćeni plan (Pro / Max / Team / Enterprise) — scheduled tasks su dostupni samo na plaćenim planovima.
+- **Gmail connector** povezan.
+- **Claude Design** uključen. Na Enterprise nalozima je podrazumevano isključen — admin ga pali u Organization settings.
+- Folder gde agent čuva šablon i interne beleške (u modulu: `/Newsletter` sa podfolderima `template` i `interno`).
+
+<Klikni naslov="Kako povezati Gmail connector">
+
+1. Otvori **Settings** (klik na svoje ime dole levo → Settings).
+2. U levom meniju, pod **Customize**, klikni **Connectors**.
+3. Pronađi **Gmail** na listi i klikni **Connect**.
+4. Prijavi se na Google nalog i odobri pristup.
+5. Kad se vratiš, pored Gmail-a stoji kvačica ✓ — connector je aktivan.
+
+</Klikni>
+
+<Slika src={s01} caption="Slika 1 — Settings → Connectors: Gmail povezan (kvačica u koloni Status)" />
+
+---
+
+## Deo A — Ručni prototip (jedan broj rukom)
+
+Cilj: napraviti **jedan kompletan newsletter rukom** i time zaključati ton, format i vizual koje će agent kasnije ponavljati.
+
+<Korak broj={1} naslov="Research (web)">
+
+<Klikni>
+
+1. U sidebar-u klikni **New chat** (svež chat = čist kontekst).
+2. Nalepi prompt ispod u polje za poruku i pošalji.
+3. Claude će pretražiti web — sačekaj da završi i pregledaj listu.
+4. **Klikni na bar 2–3 linka** i proveri da vode na stvarne, sveže članke.
+
+</Klikni>
+
+<Prompt text={`Pronađi 5 najrelevantnijih vesti iz prethodnih 7 dana za industriju digitalnog
+marketinga (Google/Meta/TikTok platforme, AI alati u marketingu, regulativa oglašavanja).
+Za svaku: naslov, jednu rečenicu zašto je bitno za naš tim, i link na izvor.
+Preskoči PR objave i reklame. Poređaj po važnosti za nas.`} />
+
+Ovde učiš da: tražiš svež vremenski opseg, zahtevaš izvor uz svaku stavku, i filtriraš šum. **Obavezno proveri linkove** — model ume da promaši i verifikacija je deo posla.
+
+<Slika src={s02} caption="Slika 2 — Rezultat research-a: 5 vesti sa izvorima" />
+
+</Korak>
+
+<Korak broj={2} naslov="Draft u brend-tonu">
+
+<Klikni>
+
+1. Ostani u **istom chatu** (Claude mora da vidi vesti iz Koraka 1).
+2. Pošalji prompt ispod — u njemu su interni update-ovi i pravila tona.
+3. Pročitaj draft naglas. Sve što „ne zvuči kao mi" prijavi konkretnom primedbom.
+4. Ponavljaj dok ton ne legne — obično 2–3 runde.
+
+</Klikni>
+
+<Prompt text={`Napiši nedeljni interni newsletter na osnovu gornjih vesti + ovih internih update-ova:
+- Potpisali smo novog klijenta iz fitness industrije, kickoff je u ponedeljak
+- Milica se vratila sa porodiljskog, preuzima social tim
+- Od sledeće nedelje prelazimo na novi sistem za time tracking
+
+Struktura: kratak uvod (2 rečenice) → „Industrija ove nedelje" (3–5 stavki) →
+„Interno" (2–3 stavke) → jedna rečenica za kraj.
+Dužina: da se pročita za 2 minuta.
+
+Ton — drži se ovih pravila:
+- kratke rečenice, maks 15 reči
+- obraćanje na „ti", ne „Vi"
+- bez fraza tipa „u dinamičnom okruženju", „sinergija", „idemo dalje zajedno"
+- svaka vest počinje onim što znači za NAS, ne opštim opisom`} />
+
+Primeri dobrih primedbi za iteraciju (konkretno, ne „nije dobar ton"):
+
+- „Uvod je previše svečan — skrati na dve rečenice i počni od najbitnije vesti."
+- „Izbaci ‘sa zadovoljstvom vas obaveštavamo' — mi tako ne pišemo."
+- „Stavka o Google update-u zvuči kao vest iz novina. Prva rečenica treba da kaže šta mi radimo zbog toga."
+
+Finalna verzija ovog prompta je **šablon** koji ide u agenta (Korak 5).
+
+<Slika src={s03} caption="Slika 3 — Pravila tona + prepravljeni draft posle iteracije" />
+
+</Korak>
+
+<Korak broj={3} naslov="Vizuelni šablon (Claude Design)">
+
+Ovo se radi **jednom** — Claude Design je interaktivan alat, scheduled task ga ne poziva sam. Pravimo fiksni šablon koji agent kasnije samo puni.
+
+<Klikni>
+
+1. Klikni **Design** u donjem levom uglu sidebar-a (ili idi na `claude.ai/design`).
+2. U polje „Describe what you want to create..." nalepi prompt ispod i klikni **Send**.
+3. Sačekaj da Design generiše masthead.
+4. Doteruj: **Annotate** (komentar direktno na elementu) ili **Tweaks** panel za brze izmene.
+5. Kad si zadovoljan: **Share** (gore desno) → pod „Export" izaberi **Project HTML → Download** (standalone).
+6. Sačuvaj skinuti HTML u folder `/Newsletter/template`.
+
+</Klikni>
+
+<Prompt text={`Napravi header/masthead za nedeljni interni newsletter kompanije „Horizont Digital"
+(digitalna marketing agencija).
+
+Uključi mesto za: logo u gornjem levom uglu, naslov izdanja „Horizont Nedeljni",
+datum izdanja, i čist sadržajni blok ispod za tekst newslettera.
+
+Brend boje: tamnoplava #1B2A4A kao primarna, narandžasta #F2994A kao akcent,
+bela pozadina. Font osećaj: moderan, čist, bez serifa.
+Stil: minimalno, profesionalno ali toplo — interni newsletter, ne reklama.`} />
+
+<Callout tip="warn">
+**Bitan detalj:** Claude Design exportuje PDF / Project HTML / PowerPoint, a Canva i ostali formati su pod „More formats and apps" — ali **ne exportuje direktno PNG/sliku**. Za email newsletter najpraktičniji je **standalone HTML** (agent kasnije puni tekst u njega).
+</Callout>
+
+<Slika src={s04} caption="Slika 4 — Masthead u Claude Design-u; desno otvoren Tweaks panel" />
+
+<Slika src={s05} caption="Slika 5 — Share → Export: PDF, Project HTML, PowerPoint, More formats and apps" />
+
+</Korak>
+
+<Korak broj={4} naslov="Sastavi draft u Gmail-u">
+
+<Klikni>
+
+1. Vrati se u chat iz Koraka 2 i priloži exportovani šablon (ili radi iz foldera `/Newsletter`).
+2. Pošalji prompt ispod (zameni mejl svojim).
+3. Claude će zatražiti dozvolu: „Claude wants to use *Create draft*..." — klikni **Always allow** (ili Allow once ako testiraš).
+4. Otvori Gmail → **Drafts** i pogledaj kako mejl stvarno izgleda.
+
+</Klikni>
+
+<Prompt text={`Ubaci gornji tekst newslettera u sačuvani HTML šablon iz /Newsletter/template.
+Napravi Gmail draft:
+- primalac: [tvoj-mejl@firma.com]
+- subject: „Horizont Nedeljni — Nedeljni pregled, [današnji datum]"
+- telo: ceo newsletter kao sređen HTML
+Ostavi kao draft, nemoj slati.`} />
+
+Connector pravi **draft**, ne šalje — što je tačan dizajn i jedina bezbedna opcija za nešto što ide celom timu. Usput: Gmail connector **ne ume da zakači fajl** na draft, pa newsletter ide kao HTML u telu mejla — zato nam je i trebao HTML šablon.
+
+<Slika src={s06} caption="Slika 6 — Claude traži dozvolu pre pristupa Gmail-u (human-in-the-loop na delu)" />
+
+<Slika src={s07} caption="Slika 7 — Draft je kreiran u Gmail-u (nije poslat)" />
+
+</Korak>
+
+<Checkpoint naslov="Checkpoint A — ručni broj je gotov kad…">
+
+- 5 vesti ima tačne, proverene linkove.
+- Ton i struktura su onakvi kakvi treba da budu svake nedelje.
+- Vizuelni šablon je exportovan i sačuvan u `/Newsletter/template`.
+- Gmail draft postoji, izgleda kako treba, i **nije** poslat.
+
+</Checkpoint>
+
+Tek kad je ovo ispunjeno, prelazi se na automatizaciju.
+
+---
+
+## Deo B — Automatizacija (scheduled task)
+
+Sada se ručna logika pakuje u jedan autonoman agent.
+
+<Korak broj={5} naslov="Napiši pun agent-prompt">
+
+Scheduled task ne može da stane i pita usred run-a, pa prompt mora biti **potpuno specifikovan unapred**: šta ako izvor ne postoji, gde je šablon, kome ide mejl. Ovo je spoj koraka 1–4 u jednu instrukciju:
+
+<Prompt label="Agent-prompt — kopiraj ceo" text={`Pripremi nedeljni interni newsletter „Horizont Nedeljni" za kompaniju Horizont Digital
+(digitalna marketing agencija, 25 ljudi). Radi potpuno samostalno, bez pitanja — ako neki
+korak ne uspe, preskoči ga i navedi to u završnom rezimeu.
+
+1. RESEARCH: Pretraži web i pronađi 5 najrelevantnijih vesti iz prethodnih 7 dana za
+   industriju digitalnog marketinga (Google/Meta/TikTok platforme, AI alati u marketingu,
+   regulativa oglašavanja). Za svaku vest zabeleži naslov i link na izvor. Preskoči PR
+   objave, reklame i sponzorisane tekstove. Koristi samo vesti za koje imaš stvaran,
+   proverljiv link — nemoj izmišljati izvore.
+
+2. INTERNI UPDATE-OVI: Pročitaj interne update-ove iz foldera /Newsletter/interno
+   (poslednji fajl po datumu). Ako folder ne postoji ili je prazan, izostavi sekciju
+   „Interno" i napomeni to u rezimeu.
+
+3. TEKST: Napiši newsletter po ovoj strukturi:
+   - kratak uvod (2 rečenice)
+   - „Industrija ove nedelje" (5 stavki iz koraka 1)
+   - „Interno" (2–3 stavke iz koraka 2)
+   - jedna rečenica za kraj
+   Dužina: da se pročita za 2 minuta.
+   Ton — drži se ovih pravila:
+   - kratke rečenice, maks 15 reči
+   - obraćanje na „ti", ne „Vi"
+   - bez fraza tipa „u dinamičnom okruženju", „sinergija", „idemo dalje zajedno"
+   - svaka vest počinje onim što znači za NAS, ne opštim opisom
+   - uz svaku vest iz industrije ostavi link na izvor
+
+4. ŠABLON: Ubaci tekst u HTML šablon iz /Newsletter/template (navy header #1B2A4A,
+   narandžasti akcenat #F2994A, masthead „Horizont Nedeljni" sa današnjim datumom).
+   Ne menjaj dizajn šablona — samo popuni sadržaj.
+
+5. GMAIL DRAFT: Napravi Gmail draft:
+   - primalac: [tvoj-mejl@firma.com]
+   - subject: „Horizont Nedeljni — Nedeljni pregled, [današnji datum]"
+   - telo: ceo newsletter kao sređen HTML (bez attachmenta)
+   Ostavi kao DRAFT. Ni u kom slučaju ne šalji mejl.
+
+6. REZIME: Na kraju mi javi kratku poruku: koliko vesti si našao, njihove naslove,
+   da li su interni update-ovi ubačeni, i da je draft spreman za pregled u Gmail-u.`} />
+
+</Korak>
+
+<Korak broj={6} naslov="Zakaži (Create scheduled task)">
+
+<Klikni>
+
+1. U sidebar-u klikni **Scheduled**.
+2. Gore desno klikni **New task** — otvara se dijalog „Create scheduled task".
+3. **Name:** ime taska, npr. „Newsletter".
+4. **Description:** kratak opis, npr. „Odradi research i pošalji mejl" (obavezno polje).
+5. U veliko polje **nalepi ceo agent-prompt** iz Koraka 5.
+6. Klikni na **ikonicu foldera** i izaberi folder sa šablonom (npr. `/Newsletter`) — task tako dobija pristup fajlovima.
+7. Dropdown sa **ikonicom štita** ostavi na **Skip** — task preskače permission pitanja i ne zastaje usred run-a.
+8. **Model:** Default model je sasvim dobar.
+9. **Frequency:** izaberi kadencu i vreme — za naš modul weekly, sreda, 8:00.
+10. Klikni **Save**.
+
+</Klikni>
+
+<Callout tip="tip">
+**Savet za testiranje:** prvo sačuvaj task sa Frequency **Manual** — pa ga okini ručno dugmetom **Run now** (Korak 7). Odmah vidiš prvi run bez čekanja. Kad si zadovoljan izlazom, promeni Frequency na weekly.
+</Callout>
+
+<Callout tip="info">
+Desktop scheduled task radi samo dok je kompjuter budan i aplikacija otvorena. Ako newsletter mora da se pripremi pouzdano bez obzira na to — koristi cloud varijantu („Run scheduled tasks in the cloud" baner na Scheduled stranici); radi na Anthropic infrastrukturi i kad je mašina ugašena, uz dnevni limit run-ova po planu.
+</Callout>
+
+<Slika src={s08} caption="Slika 8 — Popunjen „Create scheduled task” dijalog: ime, opis, agent-prompt, folder, frequency" />
+
+</Korak>
+
+<Korak broj={7} naslov="Prvi run i pregled">
+
+<Klikni>
+
+1. Posle Save otvara se stranica taska. Na njoj vidiš: **Active** prekidač, vreme sledećeg run-a, **History** i tvoje instrukcije.
+2. Klikni **Run now** (gore desno) za prvi test run.
+3. Otvori run iz History-ja i posmatraj: desno je **Progress** checklist koji agent sam vodi, plus **Context** panel.
+4. Kad run završi: pročitaj rezime, otvori Gmail draft, i **proveri bar 2 linka** iz newslettera.
+5. Ako izlaz nije dobar — klikni ikonicu olovke, doteraj prompt, pa opet **Run now**.
+
+</Klikni>
+
+Na slici ispod se vidi vredan detalj: folder `interno` nije postojao, pa je agent **sam precrtao taj korak** u Progress listi i nastavio dalje — tačno onako kako mu prompt kaže („preskoči i navedi u rezimeu"). To je razlika između potpuno specifikovanog prompta i prompta koji bi tu stao.
+
+<Slika src={s10} caption="Slika 10 — Prvi run: agent istražuje web; u Progress listi je sam precrtao korak za nepostojeći interni folder" />
+
+<Slika src={s09} caption="Slika 9 — Stranica taska: Active prekidač, sledeći run, History i Run now dugme" />
+
+Ovako izgleda uspešan završetak: agent isporučuje **poruku-rezime** — 5 vesti sa proverljivim linkovima, napomenu da je „Interno" izostavljeno jer folder ne postoji, i potvrdu da je draft spreman u Gmail-u i **nije** poslat.
+
+<Slika src={s11} caption="Slika 11 — Završni rezultat: rezime run-a levo, popunjen „Horizont Nedeljni” šablon desno" />
+
+</Korak>
+
+<Checkpoint naslov="Checkpoint B — agent je spreman kad…">
+
+- Task se pojavljuje u „Scheduled" sa tačnom kadencom.
+- Prvi run sam pronađe vesti, napiše draft u tačnom tonu i popuni šablon.
+- Gmail draft je kreiran automatski i **nije** poslat.
+- Agent na kraju pošalje kratku poruku-rezime čoveku.
+- Pregledao si bar 2 uzastopna run-a i potvrdio da nema drift-a.
+
+</Checkpoint>
+
+---
+
+## Human-in-the-loop (zašto ovako)
+
+Newsletter ide celom timu ili klijentima — to je outward-facing i teško se poništava. Zato:
+
+- Agent **priprema**, čovek **šalje**. Gmail connector i inače pravi samo draft.
+- Sve što ide „u svet" drži kao draft za pregled, ne kao live akciju. Puna autonomija je za low-stakes, reverzibilne stvari.
+- Obrati pažnju na kombinaciju iz Koraka 6: dozvole su na **Skip** (task ne zastaje), a bezbednost dolazi iz prompta („Ostavi kao DRAFT. Ni u kom slučaju ne šalji.") i iz samog connectora (ume samo draft). Autonomija u izvršavanju, čovek na jedinoj nepovratnoj akciji.
+
+Ovo je i poenta vežbe: prepoznati koji koraci smeju biti autonomni (research, draft), a koji traže čoveka (slanje).

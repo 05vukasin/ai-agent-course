@@ -6,10 +6,12 @@ node_modules
 # Build outputs
 dist
 build
+out
+.next/
+next-env.d.ts
 *.tsbuildinfo
 
 # Generated files
-apps/web/src/routeTree.gen.ts
 local.db
 local.db-*
 

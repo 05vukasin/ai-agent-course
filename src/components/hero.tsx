@@ -13,7 +13,7 @@ export function Hero() {
         priority
         placeholder="blur"
         sizes="100vw"
-        className="object-cover object-center"
+        className="object-cover object-right"
       />
 
       {/* Tamni slojevi za čitljivost teksta (malo blaži) */}

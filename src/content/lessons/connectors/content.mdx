@@ -1,37 +1,55 @@
+import connSettings from "./images/01-connectors-settings.png";
+import connBrowse from "./images/02-connectors-browse.png";
+
 ## Šta su Connectors
 
 Connectors povezuju Claude sa tvojim alatima — **Gmail, Google Calendar, Google Drive,
-Notion, Slack…** Kad je konektor povezan, Claude može da čita i radi u tim alatima:
-nađe mejl, napravi događaj u kalendaru, upiše red u Notion bazu, pripremi draft odgovora.
+Notion, Slack, Microsoft 365…** Kad je konektor povezan, Claude može da **čita i radi**
+u tim alatima: nađe mejl, napravi događaj u kalendaru, upiše red u Notion bazu, pripremi
+draft odgovora.
 
-Bez konektora Claude „priča"; sa konektorima Claude **radi** u tvojim alatima.
+Bez konektora Claude „priča”; sa konektorima Claude **radi** u tvojim alatima — to je
+razlika između saveta i gotovog posla.
+
+<Slika src={connSettings} caption="Settings → Connectors: povezani alati imaju kvačicu u koloni Status (Gmail, Google Calendar, Notion…)" />
 
 ## Kako se povezuju
 
-1. Otvori **Settings → Connectors**.
-2. Nađi alat (npr. Gmail) i klikni **Connect**.
-3. Prijavi se i odobri pristup.
-4. Kvačica ✓ znači da je konektor aktivan.
+<Klikni>
 
-<Callout tip="warn">
-Konektor dobija pristup tvojim podacima — poveži samo ono što ti treba i pregledaj koje
-dozvole tražiš.
-</Callout>
+1. Otvori **Settings → Connectors**.
+2. Nađi alat (npr. Gmail) — u vrhu su „Popular”, a preko **Add** i pretrage dolaziš do svih.
+3. Klikni **Connect** i prijavi se na nalog.
+4. Odobri pristup. Kvačica ✓ u koloni **Status** znači da je konektor aktivan.
+
+</Klikni>
+
+<Slika src={connBrowse} caption="Add / Browse konektora: dostupni alati (Google Drive, Slack, Microsoft 365…) sa dugmetom Connect" />
 
 ## Bezbednost i human-in-the-loop
 
-Claude traži **dozvolu** pre osetljivih akcija, a sve što ide „u svet" (mejl timu ili
+Konektor dobija pristup tvojim podacima — poveži **samo ono što ti treba** i pregledaj
+koje dozvole tražiš.
+
+Claude traži **dozvolu** pre osetljivih akcija, a sve što ide „u svet” (mejl timu ili
 klijentu) po pravilu priprema kao **draft** koji čovek pregleda i pošalje. Autonomija u
 pripremi, čovek na nepovratnoj akciji.
+
+<Callout tip="warn">
+Pravilo palca: **čitanje i pripremu** prepusti agentu, a **slanje / plaćanje / brisanje** zadrži za sebe.
+</Callout>
 
 ## Gde se koristi u vežbama
 
 Gmail (draftovi), Google Calendar (događaji), Notion/Sheets (CRM i tabele), Drive
 (fajlovi) — skoro svaka vežba počinje povezivanjem odgovarajućih konektora.
 
-{/* Slika: Settings → Connectors (dodaje se kasnije) */}
-{/* Mini-vežba: poveži Gmail i pronađi poslednju poruku (dodaje se kasnije) */}
+## Mini-vežba
 
-<Callout tip="info">
-Screenshotovi i mini-vežba za ovu lekciju se dodaju uskoro.
-</Callout>
+<Klikni naslov="Probaj odmah (2 min)">
+
+1. Poveži **Gmail** konektor.
+2. U novom chatu napiši: „Pronađi moju poslednju nepročitanu poruku i sažmi je u 2 rečenice.”
+3. Claude čita iz tvog inboxa i sažima — to je konektor na delu.
+
+</Klikni>

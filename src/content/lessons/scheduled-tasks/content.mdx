@@ -1,3 +1,7 @@
+import schedOverview from "./images/01-scheduled-overview.png";
+import createTask from "./images/02-create-task.png";
+import taskDetail from "./images/03-task-detail.png";
+
 ## Šta su Scheduled tasks
 
 Scheduled task pokreće agenta **po rasporedu** (npr. svakog jutra u 8h) ili na dugme
@@ -7,33 +11,51 @@ Svaki run je **zasebna, čista sesija** — agent ne pamti prošli razgovor. Zat
 mora biti **potpuno specifikovan unapred**: šta da radi, gde su fajlovi, šta ako nešto
 ne uspe, kome ide rezultat.
 
-## Ključne postavke
+<Slika src={schedOverview} caption="Scheduled stranica: tvoji taskovi + gotovi šabloni (Daily briefing, Meeting prep, Monitor a topic…)" />
 
-- **Name / Description** — ime i kratak opis taska.
-- **Prompt** — ceo, samostalan agent-prompt.
-- **Folder** — daje tasku pristup fajlovima (šabloni, beleške).
-- **Permissions: Skip** — task ne zastaje na pitanjima (zato prompt mora biti bezbedan: draft, ne slanje).
-- **Frequency** — kadenca i vreme (dnevno, nedeljno…).
+## Kako se pravi
+
+<Klikni>
+
+1. Klikni **Scheduled → New task** (ili kreni od gotovog šablona).
+2. **Name / Instructions** — ime i ceo, samostalan agent-prompt.
+3. **Project or folder** — daje tasku pristup fajlovima (šabloni, beleške).
+4. **Permissions: Skip all approvals** — task ne zastaje na pitanjima (zato prompt mora biti bezbedan: draft, ne slanje).
+5. **Frequency** — Manual, dnevno, nedeljno… i vreme. **Save.**
+
+</Klikni>
+
+<Slika src={createTask} caption="Create scheduled task: Name, Instructions, Permissions (Skip all approvals), Model, Frequency" />
+
+## Prvi run i pregled
+
+Posle Save otvara se stranica taska: **Active** prekidač, **Run now**, **History** i
+tvoje instrukcije. Klikni **Run now** za prvi test, pa pregledaj rezultat.
+
+<Slika src={taskDetail} caption="Stranica taska: Run now, History (prošli run-ovi), Instructions i Repeats" />
 
 <Callout tip="tip">
 Za testiranje prvo postavi Frequency na **Manual** i klikni **Run now** — odmah vidiš
-rezultat. Kad si zadovoljan, prebaci na raspored.
+rezultat bez čekanja. Kad si zadovoljan, prebaci na raspored.
 </Callout>
 
 ## Desktop vs Cloud
 
 **Desktop** task radi samo dok je kompjuter budan i aplikacija otvorena. **Cloud**
-varijanta radi na Anthropic infrastrukturi i kad je mašina ugašena (uz dnevni limit
-run-ova po planu).
+varijanta („Run scheduled tasks in the cloud”) radi na Anthropic infrastrukturi i kad je
+mašina ugašena — uz dnevni limit run-ova po planu.
 
 ## Gde se koristi u vežbama
 
 Newsletter agent (nedeljno), follow-up nudger, praćenje EU fondova, prijem faktura —
 sve su to scheduled taskovi koji spajaju korake u jedan automatski tok.
 
-{/* Slika: Create scheduled task dijalog (dodaje se kasnije) */}
-{/* Mini-vežba: zakaži svoj prvi task i pokreni Run now (dodaje se kasnije) */}
+## Mini-vežba
 
-<Callout tip="info">
-Screenshotovi i mini-vežba za ovu lekciju se dodaju uskoro.
-</Callout>
+<Klikni naslov="Probaj odmah (2 min)">
+
+1. **Scheduled → New task**, Frequency **Manual**.
+2. Instrukcija: „Pošalji mi kratko ‘dobro jutro’ sa jednom zanimljivom vešću iz tehnologije.”
+3. Klikni **Run now** i pogledaj rezultat — napravio si prvog agenta koji radi sam.
+
+</Klikni>

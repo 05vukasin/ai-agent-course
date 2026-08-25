@@ -1,9 +1,14 @@
+import skillsSettings from "./images/01-skills-settings.png";
+import createSkill from "./images/02-create-skill.png";
+import skillInChat from "./images/03-skill-in-chat.png";
+import skillResponse from "./images/04-skill-response.png";
+
 ## Šta su Skills
 
-Skills su spremne „veštine" koje uključiš jednom, pa ih Claude sam koristi kad prepozna
+Skills su spremne „veštine” koje uključiš jednom, pa ih Claude sam koristi kad prepozna
 zadatak — bez da svaki put objašnjavaš isti postupak. Umesto da u svaki novi chat kucaš
-„piši u našem tonu, prati ovu strukturu, koristi ove korake…", to spakuješ u skill koji
-Claude aktivira automatski.
+„piši u našem tonu, prati ovu strukturu, koristi ove korake…”, to spakuješ u skill koji
+Claude aktivira kad zatreba.
 
 ## Zašto su korisne
 
@@ -11,25 +16,49 @@ Claude aktivira automatski.
 - **Manje kucanja** — znanje je već tu, ne ponavljaš ga.
 - **Deljivo** — ceo tim koristi isti postupak.
 
-## Kako izgleda u praksi
+<Slika src={skillsSettings} caption="Settings → Skills: tvoji skill-ovi (Author: You) i oni koje isporučuje Anthropic" />
 
-Skill je u suštini paket uputstava (i po potrebi primera/šablona) koji opisuje *kako* se
-neki zadatak radi. Kad tvoj zahtev odgovara tom zadatku, Claude poseže za tim znanjem i
-prati ga korak po korak.
+## Kako se pravi skill
+
+<Klikni>
+
+1. Otvori **Settings → Skills** → **Add** → „Write skill instructions”.
+2. **Skill name** — kratko ime (npr. `nedeljni-izvestaj`).
+3. **Description** — jedna rečenica: kada se koristi.
+4. **Instructions** — konkretan postupak: koraci, pravila tona, format izlaza. **Create.**
+
+</Klikni>
+
+<Slika src={createSkill} caption="Write skill instructions: ime, opis i instrukcije (postupak koji Claude prati)" />
 
 <Callout tip="tip">
-Dobar skill je konkretan: jasni koraci, pravila tona, primeri „ovako da / ovako ne".
+Dobar skill je konkretan: jasni koraci, pravila tona, primeri „ovako da / ovako ne”.
 Što je precizniji, to je rezultat ponovljiviji.
 </Callout>
 
+## Kako se poziva u chatu
+
+Skill pozivaš direktno tako što u poruci otkucaš **`/`** pa ime skila — ili ga Claude
+sam prepozna i primeni kad tvoj zahtev odgovara njegovom opisu.
+
+<Slika src={skillInChat} caption="Pozivanje skila u chatu: otkucaš „/” pa ime (npr. /nedeljni-izvestaj)" />
+
+Claude tada prati postupak iz skila i vraća gotov rezultat u tačnom formatu — ovde ceo
+nedeljni izveštaj, spreman i kao HTML:
+
+<Slika src={skillResponse} caption="Rezultat: Claude je ispratio skill i sastavio ceo nedeljni izveštaj" />
+
 ## Gde se koristi u vežbama
 
-Kroz vežbe skills koristimo da „zaključamo" ton i format (npr. brend-ton newslettera)
+Kroz vežbe skills koristimo da „zaključamo” ton i format (npr. brend-ton newslettera)
 ili ponovljiv postupak koji agent prati u svakom run-u.
 
-{/* Slika: pregled Skills u aplikaciji (dodaje se kasnije) */}
-{/* Mini-vežba: napravi svoj prvi skill (dodaje se kasnije) */}
+## Mini-vežba
 
-<Callout tip="info">
-Screenshotovi i mini-vežba za ovu lekciju se dodaju uskoro.
-</Callout>
+<Klikni naslov="Probaj odmah (3 min)">
+
+1. Napravi skill `sazetak-mejla` sa instrukcijom: „Sažmi prosleđeni tekst u 3 tačke + 1 predlog akcije, kratko i bez žargona.”
+2. U chatu otkucaj `/sazetak-mejla` i nalepi bilo koji duži mejl.
+3. Claude odmah primeni tvoj postupak — to je skill na delu.
+
+</Klikni>

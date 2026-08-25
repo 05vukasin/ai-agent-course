@@ -1,4 +1,17 @@
 import type { StaticImageData } from "next/image";
+import type { LucideIcon } from "lucide-react";
+
+/** Metapodaci jedne lekcije (definišu se u `content/lessons/<slug>/meta.ts`). */
+export type LessonMeta = {
+  /** URL segment: /lekcije/<slug> */
+  slug: string;
+  /** Naslov lekcije */
+  title: string;
+  /** Mali podtekst na kartici */
+  subtitle: string;
+  /** React ikonica (lucide-react) za karticu i zaglavlje */
+  icon: LucideIcon;
+};
 
 /** Metapodaci jedne vežbe (definišu se u `content/exercises/<slug>/meta.ts`). */
 export type ExerciseMeta = {

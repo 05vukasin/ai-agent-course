@@ -18,12 +18,20 @@ export function SiteHeader() {
             AI Agent Kurs
           </span>
         </Link>
-        <Link
-          href="/"
-          className="text-sm text-muted transition hover:text-ink"
-        >
-          Vežbe
-        </Link>
+        <nav className="flex items-center gap-6 text-sm">
+          <Link
+            href="/#lekcije"
+            className="text-muted transition hover:text-ink"
+          >
+            Lekcije
+          </Link>
+          <Link
+            href="/#vezbe"
+            className="text-muted transition hover:text-ink"
+          >
+            Vežbe
+          </Link>
+        </nav>
       </div>
     </header>
   );

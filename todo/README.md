@@ -11,7 +11,7 @@ Dve grupe: **BizDev** i **Finansije**. Po grupi ide **6 projekata** = **2 radion
 | Grupa | Radionica | Projekti |
 |---|---|---|
 | BizDev (hibridno) | R1 | 01 Zakazivanje sastanaka · 02 CRM update · 03 Kvalifikacija leada |
-| BizDev (hibridno) | R2 | 04 Follow-up nudger · 05 Meeting prep brief · (+1 rezerva: Pipeline report) |
+| BizDev (hibridno) | R2 | 04 Follow-up nudger · 05 Meeting prep brief · 06 Analiza konkurencije (rezerva/dodatna) |
 | Finansije (uživo) | R1 | 06 EU fondovi ⭐ · 07 Fakture i troškovi · 08 Finansijski digest |
 | Finansije (uživo) | R2 | 09 Budžet vs. stvarno · 10 Naplata potraživanja · (+1 rezerva: Asistent za EU prijavu) |
 

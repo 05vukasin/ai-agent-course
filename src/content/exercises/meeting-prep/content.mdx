@@ -1,0 +1,171 @@
+## Šta agent radi
+
+Praviš agenta koji pre svakog sastanka spoji tri izvora — kalendar, istraživanje druge
+strane na webu, i prošle CRM beleške — u jednostrani brief: ko je s druge strane, gde
+ste stali, cilj sastanka i pitanja koja treba postaviti. Prvo sve prođemo **rukom u
+chatu**, pa to spojimo u jutarnji automatski zadatak za sve dnevne sastanke.
+
+<Blueprint
+  rows={[
+    ["Okidač", "jutarnji raspored (za današnje sastanke) ili ručno pre poziva"],
+    ["Izvor", "Google Calendar + web research (učesnik/firma) + CRM beleške"],
+    ["Obrada", "spoji izvore → jednostrani brief (ko, kontekst, ciljevi, pitanja)"],
+    ["Destinacija", "kratak brief (mejl sebi / Notion stranica) pre sastanka"],
+  ]}
+/>
+
+## Šta ćeš naučiti
+
+- **Spajanje 3 izvora** u jedan koristan dokument.
+- **„Nikad nespreman"** — bez ručnog kopanja pre poziva.
+- **Agent čita raspored** i sam bira šta je relevantno.
+
+## Preduslovi i konektori
+
+- **Google Calendar** connector.
+- **Web research** (ugrađeno).
+- **Notion** (CRM beleške) — opciono, ako koristiš CRM iz drugih vežbi.
+
+<Klikni naslov="Kako povezati konektore">
+
+1. Poveži **Google Calendar** (Settings → Connectors → Connect).
+2. Opciono poveži **Notion** i podeli CRM bazu, da agent povuče istoriju kontakta.
+
+</Klikni>
+
+{/* Slika: S1 — povezani Calendar (+ Notion) (dodaje se kasnije) */}
+
+<Callout tip="info">
+Screenshotovi za korake se dodaju uskoro — tekst i promptovi su finalni.
+</Callout>
+
+---
+
+## Deo A — Ručni prototip (radimo u chatu, stavku po stavku)
+
+<Korak broj={1} naslov="Pogledaj današnje sastanke">
+
+<Klikni>
+
+1. Otvori **New chat**.
+2. Nalepi prompt ispod.
+
+</Klikni>
+
+<Prompt text={`Izlistaj moje sastanke iz Google Calendar-a za danas: vreme, naslov, i gosti (mejlovi).
+Označi koji su eksterni (gost van naše firme).`} />
+
+{/* Slika: S2 — lista današnjih sastanaka sa gostima */}
+
+</Korak>
+
+<Korak broj={2} naslov="Istraži učesnika / firmu">
+
+<Prompt text={`Za sastanak „[naziv]" istraži drugu stranu na osnovu mejl domena gosta / imena firme:
+- čime se firma bavi (1–2 rečenice)
+- uloga osobe ako je javno dostupna
+- skorašnji signal (vest, objava) sa linkom
+Samo proverljivo; ako ne nađeš, reci „nepoznato".`} />
+
+{/* Slika: S3 — istraživanje učesnika sa izvorom */}
+
+</Korak>
+
+<Korak broj={3} naslov="Povuci prošle CRM beleške">
+
+<Prompt text={`Pretraži Notion CRM za ovog kontakta/firmu i sažmi našu istoriju: faza deala,
+poslednji kontakt, dogovoreni sledeći korak i otvorena pitanja iz beleški.
+Ako nema zapisa, reci da je prvi kontakt.`} />
+
+{/* Slika: S4 — sažetak istorije iz CRM-a */}
+
+</Korak>
+
+<Korak broj={4} naslov="Sastavi jednostrani brief">
+
+<Prompt text={`Napravi jednostrani brief za ovaj sastanak:
+- KO: osoba + firma (1 red)
+- KONTEKST: gde smo stali (iz CRM-a)
+- ZAŠTO SAD: skorašnji signal / povod
+- CILJ SASTANKA: 1 rečenica
+- 3 PITANJA koja treba da postavim
+- 1 RIZIK / na šta da pazim
+Kratko, „skenljivo", bez uvoda.`} />
+
+{/* Slika: S5 — gotov jednostrani brief */}
+
+</Korak>
+
+<Checkpoint naslov="Checkpoint A — ručni deo je gotov kad…">
+
+- Kalendar se čita tačno (eksterni sastanci označeni).
+- Istraživanje je proverljivo, CRM istorija povučena.
+- Brief staje na jedan ekran i zaista je koristan.
+
+</Checkpoint>
+
+---
+
+## Deo B — Automatizacija (jutarnji brief za sve sastanke)
+
+<Korak broj={5} naslov="Pun agent-prompt (spoj koraka 1–4)">
+
+<Prompt label="Agent-prompt — kopiraj ceo" text={`Svakog radnog jutra u 7:30 pripremi brifove za današnje sastanke. Radi samostalno;
+ako nešto ne uspe, preskoči i navedi u rezimeu.
+
+1. Uzmi iz Google Calendar-a sve današnje sastanke sa bar jednim EKSTERNIM gostom.
+2. Za svaki: istraži firmu/osobu na webu (kratko, proverljivo) i povuci istoriju iz
+   Notion CRM-a (faza, poslednji kontakt, sledeći korak).
+3. Sastavi jednostrani brief po strukturi: KO / KONTEKST / ZAŠTO SAD / CILJ / 3 PITANJA / RIZIK.
+4. Sve brifove spoji u jednu poruku (ili Notion stranicu „Brief — [datum]") poređane po
+   vremenu sastanka. Ako danas nema eksternih sastanaka, javi to i završi.`} />
+
+</Korak>
+
+<Korak broj={6} naslov="Zakaži (Create scheduled task)">
+
+<Klikni>
+
+1. **Scheduled → New task** → **Name:** „Jutarnji brief".
+2. Nalepi agent-prompt, daj pristup kalendaru/CRM.
+3. Permissions **Skip** → **Frequency:** radnim danima 7:30 → **Save**.
+
+</Klikni>
+
+{/* Slika: S6 — popunjen scheduled task dijalog */}
+
+</Korak>
+
+<Korak broj={7} naslov="Run now i pregled">
+
+<Klikni>
+
+1. Klikni **Run now** za prvi test.
+2. Prati **Progress**, pa pregledaj spojene brifove za dan.
+
+</Klikni>
+
+{/* Slika: S7 — run + brifovi za dan */}
+
+</Korak>
+
+<Checkpoint naslov="Checkpoint B — agent je spreman kad…">
+
+- Ujutro stigne brief za svaki eksterni sastanak.
+- Svaki brief ima kontekst iz CRM-a i skorašnji signal.
+- Sve staje u jednu preglednu poruku/stranicu.
+
+</Checkpoint>
+
+---
+
+## Human-in-the-loop
+
+- **Autonomno:** čitanje kalendara, istraživanje, pisanje briefa (interno).
+- **Čovek:** koristi brief; ništa se ne šalje spolja.
+
+## Ideje za primenu (za diskusiju na radionici)
+
+- Brief i za interne sastanke (dnevni red umesto istraživanja).
+- Slanje briefa na Slack/mejl tima umesto sebi.
+- „Posle sastanka" varijanta: agent iz beleški ažurira CRM (veza sa CRM agentom).

@@ -1,0 +1,157 @@
+## Šta agent radi
+
+Praviš agenta koji svake nedelje pregleda CRM, nađe dealove koji su „zaglavili" (nema
+kontakta duže od X dana), i za svaki napiše kratak, personalizovan follow-up mejl kao
+**draft** — čovek samo pregleda i pošalje. Prvo sve prođemo **rukom u chatu**, pa to
+spojimo u jedan nedeljni automatski zadatak.
+
+<Blueprint
+  rows={[
+    ["Okidač", "raspored (npr. ponedeljak 9h)"],
+    ["Izvor", "CRM (faza, poslednji kontakt, beleške, mejl)"],
+    ["Obrada", "nađi zaglavljene (poslednji kontakt > X dana, faza ≠ Zatvoreno) → follow-up"],
+    ["Destinacija", "Gmail draftovi (po jedan po dealu) + lista u poruci"],
+  ]}
+/>
+
+## Šta ćeš naučiti
+
+- **Scheduled task + čitanje baze** — automatsko generisanje više izlaza odjednom.
+- **Personalizacija iz beleški** — ne generičko „samo proveravam".
+- **Zašto draft, ne slanje** — zaštita odnosa sa klijentom.
+
+## Preduslovi i konektori
+
+- Plaćeni plan (scheduled task).
+- **Notion** (ili Sheets) CRM sa poljima `Faza`, `Poslednji kontakt`, `Sledeći korak`, `Beleške`, `Mejl`.
+- **Gmail** connector.
+
+<Klikni naslov="Kako povezati konektore">
+
+1. Poveži **Notion** i **Gmail** (Settings → Connectors → Connect za svaki).
+2. Podeli CRM bazu sa Notion konektorom (pristup redovima).
+
+</Klikni>
+
+{/* Slika: S1 — povezani Notion + Gmail (dodaje se kasnije) */}
+
+<Callout tip="info">
+Screenshotovi za korake se dodaju uskoro — tekst i promptovi su finalni.
+</Callout>
+
+---
+
+## Deo A — Ručni prototip (radimo u chatu, stavku po stavku)
+
+<Korak broj={1} naslov="Nađi zaglavljene dealove">
+
+<Klikni>
+
+1. Otvori **New chat**.
+2. Nalepi prompt ispod.
+
+</Klikni>
+
+<Prompt text={`Pogledaj moju Notion CRM bazu i izlistaj sve dealove kod kojih je „Poslednji kontakt"
+stariji od 10 dana, a „Faza" nije „Zatvoreno". Za svaki prikaži: Firma, Kontakt,
+Faza, koliko dana od poslednjeg kontakta, i Sledeći korak. Poređaj od najstarijeg.`} />
+
+{/* Slika: S2 — lista zaglavljenih dealova */}
+
+</Korak>
+
+<Korak broj={2} naslov="Napiši personalizovan follow-up za jedan deal">
+
+<Prompt text={`Za prvi deal sa liste napiši kratak follow-up mejl (4–6 rečenica):
+- pozovi se na konkretan detalj iz „Beleške" (ne generički „samo proveravam")
+- podseti na „Sledeći korak" i predloži konkretnu sitnicu (poziv 15 min / materijal)
+- ton: prijateljski, bez pritiska
+Prikaži mi tekst pre nego što napravimo draft.`} />
+
+{/* Slika: S3 — predlog teksta follow-up mejla */}
+
+</Korak>
+
+<Korak broj={3} naslov="Napravi draftove za sve">
+
+<Prompt text={`Za svaki deal sa liste napravi Gmail DRAFT (primalac = polje „Mejl", personalizovano
+iz beleški, potpis „Horizont Digital"). Ostavi kao draft — NE šalji. Na kraju mi daj
+listu: za koga je draft napravljen i koja je „kuka" u svakom.`} />
+
+{/* Slika: S4 — draftovi u Gmail-u + lista */}
+
+</Korak>
+
+<Checkpoint naslov="Checkpoint A — ručni deo je gotov kad…">
+
+- Lista tačno hvata dealove starije od praga (i preskače zatvorene).
+- Follow-up se poziva na konkretan detalj iz beleški.
+- Draftovi postoje i nijedan nije poslat.
+
+</Checkpoint>
+
+---
+
+## Deo B — Automatizacija (nedeljni scheduled task)
+
+<Korak broj={4} naslov="Pun agent-prompt (spoj koraka 1–3)">
+
+<Prompt label="Agent-prompt — kopiraj ceo" text={`Svakog ponedeljka u 9h probudi zaglavljene dealove. Radi samostalno; ako nešto ne
+uspe, preskoči i navedi u rezimeu.
+
+1. U Notion CRM nađi dealove gde je „Poslednji kontakt" > 10 dana, a „Faza" ≠ „Zatvoreno".
+2. Za svaki napiši kratak, personalizovan follow-up (pozovi se na „Beleške" i „Sledeći
+   korak"; prijateljski ton, bez pritiska).
+3. Napravi Gmail DRAFT za svaki (primalac = „Mejl", potpis „Horizont Digital"). NE šalji.
+4. Rezime: koliko dealova, za koga su draftovi, i „kuka" svakog. Ako nema zaglavljenih,
+   javi to i završi.`} />
+
+</Korak>
+
+<Korak broj={5} naslov="Zakaži (Create scheduled task)">
+
+<Klikni>
+
+1. **Scheduled → New task** → **Name:** „Follow-up nudger".
+2. Nalepi agent-prompt, daj pristup bazi/folderu.
+3. Permissions **Skip** → **Frequency:** ponedeljak 9h → **Save**.
+
+</Klikni>
+
+{/* Slika: S5 — popunjen scheduled task dijalog */}
+
+</Korak>
+
+<Korak broj={6} naslov="Run now i pregled">
+
+<Klikni>
+
+1. Klikni **Run now** za prvi test.
+2. Prati **Progress**, pa otvori Gmail → **Drafts** i pregledaj follow-up-e.
+
+</Klikni>
+
+{/* Slika: S6 — run + spremni draftovi */}
+
+</Korak>
+
+<Checkpoint naslov="Checkpoint B — agent je spreman kad…">
+
+- Task radi ponedeljkom i hvata prave dealove.
+- Draftovi su personalizovani i nijedan nije poslat.
+- Rezime je pregledan (ko, kuka).
+
+</Checkpoint>
+
+---
+
+## Human-in-the-loop
+
+- **Autonomno:** čitanje CRM-a, pisanje draftova.
+- **Čovek:** čita i šalje (ili ne šalje) svaki follow-up.
+
+## Ideje za primenu (za diskusiju na radionici)
+
+- Različiti pragovi po fazi (Ponuda 5 dana, Kvalifikovan 14 dana).
+- Eskalacija tona posle 2. i 3. neodgovorenog follow-up-a.
+- Nakon slanja — agent ažurira „Poslednji kontakt" (veza sa CRM agentom).

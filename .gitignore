@@ -58,3 +58,6 @@ coverage
 .cache
 tmp
 temp
+
+# Git worktrees (npr. .claude/worktrees)
+.claude/worktrees/

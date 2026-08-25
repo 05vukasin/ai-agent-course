@@ -1,0 +1,225 @@
+## Šta agent radi
+
+Praviš agenta koji **održava tabelu konkurenata** (Google Sheet), sam pronalazi nove
+igrače kojih nema u tabeli, radi research skorašnjih vesti za sve, i na kraju ti šalje
+**sažet PDF izveštaj na mejl** — samo ono najvažnije, sumirano. Prvo sve prođemo **rukom
+u chatu**, korak po korak, pa to spojimo u jedan nedeljni automatski zadatak.
+
+<Blueprint
+  rows={[
+    ["Okidač", "raspored (npr. ponedeljak 8h, weekly)"],
+    ["Izvor", "Google Sheet „Konkurenti” + web (vesti, sajtovi, novi igrači)"],
+    ["Obrada", "research za postojeće → nađi nove → dodaj u tabelu → sažmi"],
+    ["Destinacija", "tabela ažurirana + sažet PDF izveštaj na tvoj mejl"],
+  ]}
+/>
+
+## Šta ćeš naučiti
+
+- **Agent koji piše u bazu i sam je proširuje** — dodaje nove redove, ne samo čita.
+- **Spoj alata** — tabela ↔ web research ↔ PDF ↔ mejl.
+- **Filtriranje šuma** — izveštaj sadrži samo ono što je bitno, sumirano.
+
+## Preduslovi i konektori
+
+- Plaćeni plan (scheduled task).
+- **Google Sheets** — tabela „Konkurenti”.
+- **Web research** (ugrađeno).
+- **Gmail** connector (slanje izveštaja na svoj mejl).
+- (Opciono) **Google Drive** — za čuvanje PDF-a i deljenje linka.
+
+Tabela „Konkurenti” — kolone: `Konkurent`, `Sajt`, `Kategorija`, `Zašto je konkurent`,
+`Poslednja provera`, `Poslednje vesti`, `Status` (Aktivan / Nov / Za proveru).
+
+<Klikni naslov="Kako pripremiti tabelu i konektore">
+
+1. Poveži **Google Sheets** i **Gmail** (Settings → Connectors → Connect za svaki).
+2. Napravi Sheet „Konkurenti” sa gornjim kolonama i ubaci 3–5 konkurenata koje već znaš.
+3. Opciono poveži **Google Drive** (za čuvanje PDF izveštaja).
+
+</Klikni>
+
+{/* Slika: S1 — povezani Google Sheets + Gmail (+ Drive) */}
+{/* Slika: S2 — tabela „Konkurenti" sa seed konkurentima */}
+
+<Callout tip="info">
+Screenshotovi za korake se dodaju uskoro — tekst i promptovi su finalni.
+</Callout>
+
+---
+
+## Deo A — Ručni prototip (radimo u chatu, stavku po stavku)
+
+<Korak broj={1} naslov="Research vesti za postojeće konkurente">
+
+Prvo naučimo Claude-a da pročita tabelu i za svakog nađe skorašnje vesti.
+
+<Klikni>
+
+1. Otvori **New chat**.
+2. Nalepi prompt ispod.
+
+</Klikni>
+
+<Prompt text={`Pročitaj Google Sheet „Konkurenti". Za SVAKOG konkurenta iz tabele pretraži web za
+vesti iz poslednjih 30 dana (nov proizvod, cena, kampanja, partnerstvo, runda, ključno
+zapošljavanje). Za svakog vrati 1–2 NAJVAŽNIJE stavke, svaku sa linkom na izvor.
+Preskoči nebitno (obične blog objave, reklame). Ako za nekog nema ničeg vrednog, reci to.`} />
+
+{/* Slika: S3 — vesti po konkurentu sa izvorima */}
+
+</Korak>
+
+<Korak broj={2} naslov="Pronađi nove konkurente">
+
+Sada tražimo firme kojih još nema u tabeli.
+
+<Prompt text={`Naš profil: [ukratko šta radimo / proizvod / tržište / region].
+Na osnovu toga pronađi 3–5 firmi koje su nam konkurenti ili alternativa, a KOJIH NEMA
+u tabeli „Konkurenti". Za svaku: naziv, sajt, kategorija, i jedna rečenica zašto je
+konkurent. Uključi samo stvarne firme sa proverljivim sajtom — ne izmišljaj.`} />
+
+{/* Slika: S4 — predlog novih konkurenata */}
+
+</Korak>
+
+<Korak broj={3} naslov="Dodaj nove u tabelu i istraži ih">
+
+<Prompt text={`Dodaj te nove konkurente kao nove redove u Sheet „Konkurenti" (Status = „Nov",
+Poslednja provera = danas). Zatim za svakog novog uradi isti research kao u koraku 1
+(1–2 najvažnije vesti sa izvorom) i upiši u kolonu „Poslednje vesti".
+Pre upisa mi pokaži šta ćeš dodati.`} />
+
+{/* Slika: S5 — tabela sa dodatim novim + popunjene vesti */}
+
+</Korak>
+
+<Korak broj={4} naslov="Napravi sažet izveštaj i pretvori u PDF">
+
+<Prompt text={`Napravi kratak izveštaj o konkurenciji (da se pročita za 2 minuta):
+- 1 rečenica: najvažnije ove nedelje
+- po konkurentu SAMO ako ima nešto vredno: 1–2 stavke + link (bez praznog nabrajanja)
+- sekcija „Novi konkurenti": ko je dodat i zašto je bitan
+- na kraju: 1–2 stvari na koje da obratimo pažnju
+Zatim od ovog izveštaja napravi uredan PDF (naslov „Analiza konkurencije — [datum]",
+čist, minimalan). Sačuvaj PDF u Google Drive folder /Izvestaji.`} />
+
+<Callout tip="warn">
+**PDF i attachment:** Gmail connector ne mora da podržava kačenje fajlova. Zato je
+pouzdan tok — **sažetak ide kao lep HTML u telu mejla** (čitaš odmah, bez otvaranja), a
+**PDF se sačuva u Drive** pa u mejl ubacimo link. Ako tvoja verzija podržava attachment,
+agent može i direktno da zakači PDF.
+</Callout>
+
+{/* Slika: S6 — gotov izveštaj + PDF u Drive-u */}
+
+</Korak>
+
+<Korak broj={5} naslov="Pošalji izveštaj na svoj mejl">
+
+Šaljemo sa tvog Gmail-a na tvoju istu adresu (self-send).
+
+<Prompt text={`Pošalji mejl sa mog Gmail-a na moju adresu [tvoj-mejl@firma.com]:
+- subject: „Analiza konkurencije — [datum]"
+- telo: ceo sažetak kao uredan HTML (najvažnije prvo)
+- dodaj link na PDF iz /Izvestaji (ili zakači PDF ako je moguće)
+Pošalji ga (ide samo meni).`} />
+
+{/* Slika: S7 — primljen mejl sa sažetkom + PDF/link */}
+
+</Korak>
+
+<Checkpoint naslov="Checkpoint A — ručni deo je gotov kad…">
+
+- Za postojeće konkurente izvučene su tačne, skorašnje vesti sa izvorima.
+- Bar jedan nov konkurent je pronađen, dodat u tabelu i istražen.
+- Izveštaj je sažet (bez praznog nabrajanja) i pretvoren u PDF.
+- Mejl sa sažetkom je stigao na tvoju adresu.
+
+</Checkpoint>
+
+---
+
+## Deo B — Automatizacija (nedeljni scheduled task)
+
+Sada ceo ciklus spajamo u jedan samostalan zadatak koji radi svake nedelje.
+
+<Korak broj={6} naslov="Pun agent-prompt (spoj koraka 1–5)">
+
+<Prompt label="Agent-prompt — kopiraj ceo" text={`Svakog ponedeljka u 8h uradi analizu konkurencije za „Horizont Digital"
+(profil: [šta radimo / proizvod / tržište / region]). Radi samostalno; ako neki korak
+ne uspe, preskoči ga i navedi u rezimeu.
+
+1. POSTOJEĆI: pročitaj Google Sheet „Konkurenti" i za svakog nađi 1–2 najvažnije vesti
+   iz poslednjih 30 dana (proizvod, cena, kampanja, partnerstvo, runda, ključno
+   zapošljavanje), svaku sa proverljivim linkom. Preskoči nebitno. Ažuriraj „Poslednje
+   vesti" i „Poslednja provera" (danas).
+2. NOVI: pronađi 3–5 firmi koje su nam konkurenti a nisu u tabeli. Dodaj ih kao nove
+   redove (Status „Nov") i istraži ih isto kao postojeće. Koristi samo stvarne firme sa
+   proverljivim sajtom — ne izmišljaj.
+3. IZVEŠTAJ: napravi sažet izveštaj (2 min čitanja): najvažnije ove nedelje, po
+   konkurentu samo ako ima nešto vredno (1–2 stavke + link), sekcija „Novi konkurenti",
+   i 1–2 stvari za pažnju. Napravi PDF i sačuvaj u Drive /Izvestaji.
+4. MEJL: pošalji sa mog Gmail-a na [tvoj-mejl@firma.com], subject „Analiza konkurencije —
+   [datum]", telo = ceo sažetak kao HTML, plus link na PDF (ili attachment ako je moguće).
+   Pošalji (ide samo meni).
+5. REZIME: koliko konkurenata provereno, koliko novih dodato, i da je izveštaj poslat.`} />
+
+</Korak>
+
+<Korak broj={7} naslov="Zakaži (Create scheduled task)">
+
+<Klikni>
+
+1. **Scheduled → New task** → **Name:** „Analiza konkurencije"; **Description** obavezno.
+2. Nalepi agent-prompt, daj pristup Sheet-u/Drive-u.
+3. Permissions **Skip** → **Frequency:** ponedeljak 8h → **Save**.
+
+</Klikni>
+
+<Callout tip="tip">
+Prvo sačuvaj sa **Frequency: Manual** i okini **Run now** da vidiš prvi rezultat, pa prebaci na weekly.
+</Callout>
+
+{/* Slika: S8 — popunjen scheduled task dijalog */}
+
+</Korak>
+
+<Korak broj={8} naslov="Run now, verifikacija i pregled">
+
+<Klikni>
+
+1. Klikni **Run now** za prvi test.
+2. Prati **Progress** i proveri: tabela ažurirana, novi dodati, mejl stigao.
+3. **Otvori bar 2 linka** iz izveštaja da potvrdiš da vode na stvarne vesti.
+
+</Klikni>
+
+{/* Slika: S9 — prvi run: ažurirana tabela + primljen mejl */}
+
+</Korak>
+
+<Checkpoint naslov="Checkpoint B — agent je spreman kad…">
+
+- Task radi ponedeljkom i sam ažurira tabelu (postojeći + novi).
+- Izveštaj je sažet, sa proverljivim linkovima (proveriti bar 2).
+- Mejl sa PDF-om/linkom stiže na tvoju adresu.
+- Pregledana bar 2 uzastopna run-a (izvori se menjaju — prati drift i duplikate).
+
+</Checkpoint>
+
+---
+
+## Human-in-the-loop
+
+- **Autonomno:** research, upis u tabelu, dodavanje novih konkurenata, pravljenje izveštaja.
+- **Slanje mejla je auto** — ali samo zato što ide **isključivo tebi** (low-stakes, self-send).
+  Ako bi ikad slao izveštaj timu ili napolje, prebaci na **draft** i pregledaj pre slanja.
+- Verifikacija linkova ostaje na čoveku (model ume da promaši ili zastari izvor).
+
+## Ideje za primenu (za diskusiju na radionici)
+
+- „Alert" varijanta: konkurent snizi cenu / lansira proizvod → hitan mejl odmah.
+- Praćenje po kategoriji (direktni vs. indirektni) i score „pretnje".
+- Kvartalni trend: čuvanje starih izveštaja u Drive-u i poređenje kroz vreme.
+- Umesto mejla — upis sažetka u Notion „Konkurencija" stranicu za ceo tim.

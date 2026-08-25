@@ -1,0 +1,165 @@
+## Šta agent radi
+
+Praviš agenta koji za novog leada istraži firmu na webu, oceni koliko odgovara vašem
+idealnom klijentu (ICP), predloži konkretan pristup za prvi kontakt, i sve to upiše u
+CRM kao obogaćen red sa prioritetom. Prvo sve prođemo **rukom u chatu**, korak po korak,
+pa to spojimo u jedan agent-prompt koji obradi sve nove leadove odjednom.
+
+<Blueprint
+  rows={[
+    ["Okidač", "nov lead (ime firme/kontakt) — ručno ili nov red u „Novi leadovi”"],
+    ["Izvor", "web research (sajt firme, vesti, LinkedIn) + vaši ICP kriterijumi"],
+    ["Obrada", "istraži firmu → oceni fit (score 1–5) → predloži pristup"],
+    ["Destinacija", "obogaćen red u CRM-u (sažetak + score + pristup + prioritet)"],
+  ]}
+/>
+
+## Šta ćeš naučiti
+
+- **Web research sa izvorima** — prikupljanje i filtriranje bez izmišljanja podataka.
+- **Ponovljiv kriterijum (ICP score)** — pretvaranje „osećaja” u dosledan broj.
+- **Priprema pre prvog kontakta** — štedi sate ručnog guglanja.
+
+## Preduslovi i konektori
+
+- **Web research** (ugrađeno).
+- **Notion** (ili Google Sheets) — CRM / „Novi leadovi” baza.
+- Definisan **ICP** (idealni profil klijenta) — kriterijumi se koriste u promptu.
+
+<Klikni naslov="Kako pripremiti bazu i ICP">
+
+1. Poveži **Notion** (Settings → Connectors → Connect) i podeli bazu sa konektorom.
+2. Napravi bazu „Novi leadovi” sa poljima: Firma, Kontakt, Score, Sažetak, Predlog pristupa, Prioritet, Status.
+3. Zapiši svoj **ICP**: delatnost, veličina, signal potrebe — koristićeš ga u koracima ispod.
+
+</Klikni>
+
+{/* Slika: S1 — „Novi leadovi" baza sa poljima (dodaje se kasnije) */}
+
+<Callout tip="info">
+Screenshotovi za korake se dodaju uskoro — tekst i promptovi su finalni.
+</Callout>
+
+---
+
+## Deo A — Ručni prototip (radimo u chatu, stavku po stavku)
+
+<Korak broj={1} naslov="Istraži firmu">
+
+<Klikni>
+
+1. Otvori **New chat**.
+2. Nalepi prompt (zameni firmu stvarnim leadom).
+
+</Klikni>
+
+<Prompt text={`Istraži firmu „[Ime firme]" (sajt: [ako imaš URL]). Vrati kratko:
+- čime se bave (1–2 rečenice)
+- veličina / delatnost / tržište
+- skorašnji signali (rast, nova runda, otvorene pozicije, vesti) — sa linkom na izvor
+Koristi samo proverljive izvore; ako nešto ne nađeš, reci „nepoznato". Ne izmišljaj.`} />
+
+{/* Slika: S2 — sažetak istraživanja firme sa izvorima */}
+
+</Korak>
+
+<Korak broj={2} naslov="Oceni fit po ICP kriterijumima">
+
+<Prompt text={`Oceni koliko ova firma odgovara našem idealnom klijentu. Naš ICP:
+- delatnost: [npr. e-commerce, SaaS, agencije]
+- veličina: [npr. 10–100 zaposlenih]
+- signal potrebe: [npr. ulažu u marketing / imaju sopstveni sajt / skaliraju]
+Daj: Score 1–5 (5 = savršen fit), jednu rečenicu obrazloženja, i „crvene zastavice"
+ako postoje (razlozi zašto možda nije za nas).`} />
+
+{/* Slika: S3 — ICP score + obrazloženje */}
+
+</Korak>
+
+<Korak broj={3} naslov="Predloži pristup i upiši u CRM">
+
+<Prompt text={`Na osnovu istraživanja predloži pristup za prvi kontakt:
+- „kuka" (konkretan povod baš za ovu firmu, 1 rečenica)
+- kanal (mejl / LinkedIn / poziv) i zašto
+- prioritet (Visok / Srednji / Nizak) na osnovu score-a
+Zatim upiši nov red u Notion „Novi leadovi": Firma, Kontakt, Score, Sažetak,
+Predlog pristupa, Prioritet. Pokaži mi red pre upisa.`} />
+
+{/* Slika: S4 — upisan obogaćen red u bazi */}
+
+</Korak>
+
+<Checkpoint naslov="Checkpoint A — ručni deo je gotov kad…">
+
+- Istraživanje ima proverljive izvore (bez izmišljenih podataka).
+- Score je obrazložen i dosledno prati ICP.
+- Red u CRM-u sadrži sažetak, score, predlog pristupa i prioritet.
+
+</Checkpoint>
+
+---
+
+## Deo B — Automatizacija (obrada svih novih leadova odjednom)
+
+<Korak broj={4} naslov="Pun agent-prompt (spoj koraka 1–3)">
+
+<Prompt label="Agent-prompt — kopiraj ceo" text={`Obradi sve NOVE leadove. Radi samostalno; ako nešto ne uspe, preskoči i navedi u rezimeu.
+
+1. U Notion bazi „Novi leadovi" nađi redove sa statusom „Nov" (ili prazan Score).
+2. Za svaki: istraži firmu na webu (čime se bave, veličina, skorašnji signali) —
+   samo proverljivi izvori, bez izmišljanja.
+3. Oceni fit po našem ICP-u: delatnost [...], veličina [...], signal [...]. Daj Score 1–5.
+4. Predloži pristup (kuka + kanal) i prioritet.
+5. Upiši u red: Sažetak, Score, Predlog pristupa, Prioritet; promeni status u „Obrađen".
+6. Rezime: koliko leadova obrađeno, top 3 po score-u sa kukom za svaki.`} />
+
+</Korak>
+
+<Korak broj={5} naslov="Zakaži (Create scheduled task)">
+
+<Klikni>
+
+1. **Scheduled → New task** → **Name:** „Kvalifikacija leadova".
+2. Nalepi agent-prompt, daj pristup bazi.
+3. Permissions **Skip** → **Frequency:** svaki dan 9h (ili Manual + Run now) → **Save**.
+
+</Klikni>
+
+{/* Slika: S5 — popunjen scheduled task dijalog */}
+
+</Korak>
+
+<Korak broj={6} naslov="Run now i pregled">
+
+<Klikni>
+
+1. Klikni **Run now** za prvi test.
+2. Prati **Progress** listu.
+3. Otvori bazu i pregledaj obogaćene redove i rezime sa top 3 leada.
+
+</Klikni>
+
+{/* Slika: S6 — run + rezime sa top 3 leada */}
+
+</Korak>
+
+<Checkpoint naslov="Checkpoint B — agent je spreman kad…">
+
+- Obradi sve „Nove" leadove i označi ih „Obrađen".
+- Score-ovi su dosledni i obrazloženi.
+- Rezime izdvaja prioritetne leadove sa konkretnom kukom.
+
+</Checkpoint>
+
+---
+
+## Human-in-the-loop
+
+- **Autonomno:** istraživanje, scoring, upis u internu bazu.
+- **Čovek:** odluka koga zaista kontaktirati i slanje prve poruke.
+
+## Ideje za primenu (za diskusiju na radionici)
+
+- Prioritetni leadovi automatski dobijaju draft prve poruke (veza sa follow-up agentom).
+- Različiti ICP-ovi po segmentima (mala vs. velika firma).
+- „Disqualify" pravila (konkurencija, van regiona) → status „Odbačen".
